@@ -3,6 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Ejemplar;
+use App\Libro;
+use App\Estado;
+use App\Usuario;
+
+
+
 
 class EjemplarController extends Controller
 {
@@ -22,7 +29,7 @@ class EjemplarController extends Controller
 
     public function index()
     {
-        $ejemplar = Ejemplar::all(); // se obtiene la totalidad de peliculas existentes en la BD
+        $ejemplares = Ejemplar::all(); // se obtiene la totalidad de peliculas existentes en la BD
         $datos = array ();
         $contador = 0;
 
@@ -30,7 +37,7 @@ class EjemplarController extends Controller
         foreach ($ejemplares as $ejemplar) {
             $libro = Libro::find($ejemplar->libro_id); // se busca el genero especifico de la pelicula, buscando el id
             $estado = Estado::find($ejemplar->estado_id);
-            $usuario = Usuairo::find($ejemplar->usuario_id);
+            $usuario = Usuario::find($ejemplar->usuario_id);
 
             // asigancion de valores
             $datos[$contador]["id"] = $ejemplar->id;

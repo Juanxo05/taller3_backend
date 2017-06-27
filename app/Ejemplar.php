@@ -17,7 +17,7 @@ class Ejemplar extends Model
     	'estado_id',
     	'usuario_id'
 
-    ]
+    ];
 
 
 }
