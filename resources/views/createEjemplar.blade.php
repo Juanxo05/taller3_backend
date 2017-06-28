@@ -15,7 +15,7 @@
                             <label for="libro_id" class="col-md-4 control-label">Titulo</label>
                             <div class="col-md-6">
                                 <select class="form-control" name="libro_id" >
-                                 {{--  se recorreran los generos enviados desde el servidor --}}
+                                 {{--  se recorreran los libros enviados desde el servidor --}}
                                    @foreach ($libros as $libro)
                                          <option value="{{ $libro->libro_id }}">{{ $libro->titulo }}</option> 
                                     @endforeach
@@ -46,7 +46,23 @@
                                 </select>
                             </div>                                                        
                         </div>
-                       
+
+                        <div class="form-group">
+                            <label for="fecha_prestamo" class="col-md-4 control-label">Fecha de Prestamo</label>
+                            <div class="col-md-6">
+                                <input type="date" class="form-control" name="fecha_prestamo">
+
+                            </div>                                                        
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fecha_devolucion" class="col-md-4 control-label">Fecha de Devolucion</label>
+                            <div class="col-md-6">
+                                <input type="date" class="form-control" name="fecha_devolucion">
+                            </div>                                                        
+                        </div>
+
+
 
                         <div class="form-group">
                             <div class="col-md-6 col-md-offset-4">

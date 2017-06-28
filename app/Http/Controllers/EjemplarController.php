@@ -7,7 +7,9 @@ use App\Ejemplar;
 use App\Libro;
 use App\Estado;
 use App\Usuario;
-
+use App\Genero;
+use App\Autor;
+use App\Http\Requests\EjemplarRequest;
 
 
 
@@ -19,18 +21,19 @@ class EjemplarController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-
+    /*
     public function __construct()
     
     {   
         $this->middleware('auth');
     }
-
+    */
 
     public function index()
     {
         $ejemplares = Ejemplar::all(); // se obtiene la totalidad de peliculas existentes en la BD
         $datos = array ();
+        $libros = array();
         $contador = 0;
 
         // se obtenendran los valores de cada pelicula y se almacenaran en un array para ser retornados hacia la vista
@@ -38,18 +41,28 @@ class EjemplarController extends Controller
             $libro = Libro::find($ejemplar->libro_id); // se busca el genero especifico de la pelicula, buscando el id
             $estado = Estado::find($ejemplar->estado_id);
             $usuario = Usuario::find($ejemplar->usuario_id);
+            $genero = Genero::find($libro->genero_id);
+            $autor = Autor::find($libro->autor_id);
+
+            $libros['id'] = $libro->id;
+            $libros['titulo'] = $libro->titulo;
+            $libros['autor'] = $autor;
+            $libros['genero'] = $genero;
+            
+
 
             // asigancion de valores
             $datos[$contador]["id"] = $ejemplar->id;
             $datos[$contador]["libro"] = $libro->titulo;
             $datos[$contador]["estado"] = $estado->descripcion;
             $datos[$contador]["usuario"]   = $usuario->nombre;
-            $datos[$contador]["usuario"] = $usuario->rut;
+            $datos[$contador]["fecha_prestamo"]   = $ejemplar->fecha_prestamo;
+            $datos[$contador]["fecha_devolucion"]   = $ejemplar->fecha_devolucion;
            
             $contador++;
         }
         // retorno de vista y datos que listara
-        return view("/home", compact('datos'));
+        return $datos;
     }
 
     /**
@@ -59,13 +72,7 @@ class EjemplarController extends Controller
      */
     public function create()
     {
-        $libros = Libro::all(); // Se obtienen todos los libros almacenados
-        $estados = Estado::all(); // Se obtienen todos los Estados
-        $usuarios = Usuario::all(); // Se obtienen todos los Usuarios
-
-        //Retorno de la vista y los datos a listar.
-        return view('/createEjemplar', compact('libros','estados','usuarios'));
-
+        
 
     }
 
@@ -77,7 +84,17 @@ class EjemplarController extends Controller
      */
     public function store(Request $request)
     {
-        
+        $ejemplar = Ejemplar::create($request->all());
+        if (!isset($ejemplar)) {
+            $datos = 
+            [
+            'errors'=>true,
+            'msg' => 'No se creo prestamo',
+            ];
+
+            $ejemplar = \Response::json($datos, 404);
+          }
+        return $ejemplar;
     }
 
     /**
@@ -88,7 +105,30 @@ class EjemplarController extends Controller
      */
     public function show($id)
     {
-        
+        $ejemplar = Ejemplar::find($id);
+        $datos = array();
+        $libros = array();
+
+        $usuario = Usuario::find($ejemplar->usuario_id);
+        $estado = Estado::find($ejemplar->estado_id);
+        $libro = Libro::find($ejemplar->libro_id);
+        $genero = Genero::find($libro->genero_id);
+        $autor = Autor::find($libro->autor_id);
+
+        $libros['id'] = $libro->id;
+        $libros['titulo'] = $libro->titulo;
+        $libros['autor'] = $autor;
+        $libros['genero'] = $genero;
+
+       $datos['id'] = $ejemplar->id;
+       $datos['fecha_prestamo'] = $ejemplar->fecha_prestamo;
+       $datos['fecha_devolucion'] = $ejemplar->fecha_devolucion;
+       $datos['libro'] = $libroDatos;
+       $datos['estado'] = $estado;
+       $datos['usuario'] = $usuario;
+
+       return $datos;
+
     }
 
     /**
@@ -99,14 +139,7 @@ class EjemplarController extends Controller
      */
     public function edit($id)
     {
-        /*
-        $ejemplar = Ejemplar::find($id); //Se busca el ejemplar 
-        $libros = Libro::all();
-        $estados = Estado::all();
-        $usuarios = Usuario::all();
 
-        return ('/editEjemplar',compact('ejemplar','libros','estados','usuarios'));
-        */
     }
 
     /**
@@ -118,19 +151,17 @@ class EjemplarController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $ejemplar = Ejemplar::find($id);
-        //Se rellenan los atributos con los datos respectivos
+
+        $ejemplar = Ejemplar::find($id); 
         $ejemplar->fill($request->all());
-
-        //Aqui se guardan los cambios hechos
-
-        if($ejemplar->save()){
-            Session::flash('message-success', 'El ejemplar se actualizo satisfactoriamente');
+        $ejemplarRetorno = $ejemplar->save();
+        
+        if (isset($ejemplar)) {
+            $ejemplar = \Response::json($ejemplarRetorno, 200);
         } else {
-            Session::flash('message-error', 'El ejemplar no se ha podido actualizar');
+           $ejemplar= \Response::json(['error' => 'No se ha podido actualizar el prestamo de ejemplar'], 404);
         }
-
-        return Redirect::to('/ejemplares');
+        return $ejemplar;
     }
 
     /**
@@ -141,13 +172,14 @@ class EjemplarController extends Controller
      */
     public function destroy($id)
     {
-        $pelicula = Pelicula::find($id);
-        if($pelicula->delete()){
-            Session::flash('message-success', 'El ejemplar se elimino satisfactoriamente');
-        }else{
-            Session::flash('message-error', 'El ejemplar no se ha podido eliminar');
+        $ejemplar = Ejemplar::find($id);
+        if ($ejemplar->delete()) {
+            $ejemplar = \Response::json(['delete'=> true, 'id'=>$id, 200]);
+        } else {
+            $ejemplar = \Response::json(['error' => 'No se ha podido eliminar el registro']);
         }
 
-        return Redirect::to('/ejemplares');
+        return $ejemplar;
+
     }
 }

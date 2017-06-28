@@ -1,18 +1,23 @@
 <?php
 namespace App\Http\Controllers\Api;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Requests\PeliculaRequest; // request personalizado creado para la validacion de datos del formulario
+
+use App\Http\Requests\EjemplarRequest; // request personalizado creado para la validacion de datos del formulario
 
 //uso de modelos
-use App\Pelicula;   
-use App\Genero;
+use App\Ejemplar;   
+use App\Libro;
+use App\Usuario;
+use App\Estado;
+
 
 //uso de componentes
 use Redirect; // redireccionamiento a otra ruta
 use Session;    // comunicador de mensajes hacia el cliente
 
-class PeliculaApiController extends Controller
+class EjemplarApiController extends Controller
 {   
     // Constructor
     public function __construct()
@@ -26,7 +31,7 @@ class PeliculaApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        return Pelicula::all();
+        return Ejemplar::all();
     }
     /**
      * Store a newly created resource in storage.
@@ -37,19 +42,19 @@ class PeliculaApiController extends Controller
      *
      *Se implementa un Request propio para las validaciones de los datos el request
      *Revisar App\Http\Requests\PeliculaRequest.php*/
-    public function store(PeliculaRequest  $request)
+    public function store(EjemplarRequest  $request)
     {
         // creacion y a su vez validacion si el recurso se creo correctamente
-        $pelicula = Pelicula::create($request->all());
-        if (!isset($pelicula)) { 
+        $ejemplar = Ejemplar::create($request->all());
+        if (!isset($ejemplar)) { 
             $datos = [
             'errors' => true,
-            'msg' => 'No se creo pelicula',
+            'msg' => 'No se realizo prestamo de ejemplar',
             ];
-            $pelicula = \Response::json($datos, 404);
+            $ejemplar = \Response::json($datos, 404);
         }         
         // se retorna a la ruta 
-        return $pelicula;
+        return $ejemplar;
     }
     /**
      * Display the specified resource.
@@ -58,15 +63,15 @@ class PeliculaApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id) {
-        $pelicula = Pelicula::find($id);
-        if (!isset($pelicula)) {
+        $ejemplar = Ejemplar::find($id);
+        if (!isset($ejemplar)) {
             $datos = [
             'errors' => true,
-            'msg' => 'No se encontró la pelicula con ID = ' . $id,
+            'msg' => 'No se encontró la ejemplar con ID = ' . $id,
             ];
-            $pelicula = \Response::json($datos, 404);
+            $ejemplar = \Response::json($datos, 404);
         }
-        return $pelicula;
+        return $ejemplar;
     }
     /**
      * Update the specified resource in storage.
@@ -77,16 +82,16 @@ class PeliculaApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $pelicula = Pelicula::find($id); // busqueda de la pelicula a actualizar
-        $pelicula->fill($request->all()); // se rellenaran los atributos del objeto con sus respectivos datos
-        $peliculaRetorno = $pelicula->save();
+        $ejemplar = Ejemplar::find($id); // busqueda de la pelicula a actualizar
+        $ejemplar->fill($request->all()); // se rellenaran los atributos del objeto con sus respectivos datos
+        $ejemplarRetorno = $ejemplar->save();
         // se guardan los cambios
-        if (isset($pelicula)) {
-            $pelicula = \Response::json($peliculaRetorno, 200);
+        if (isset($ejemplar)) {
+            $ejemplar = \Response::json($ejemplarRetorno, 200);
         } else {
-           $pelicula = \Response::json(['error' => 'No se ha podido actualizar la pelicula'], 404);
+           $ejemplar = \Response::json(['error' => 'No se ha podido actualizar el prestamo del ejemplar'], 404);
         }
-        return $pelicula;
+        return $ejemplar;
     }
     /**
      * Remove the specified resource from storage.
@@ -96,12 +101,12 @@ class PeliculaApiController extends Controller
      */
     public function destroy($id)
     {
-        $pelicula = Pelicula::find($id); // se busca la pelicula
-        if ($pelicula->delete()) {  // se elimina
-            $pelicula = \Response::json(['delete' => true, 'id' => $id], 200);
+        $ejemplar = Ejemplar::find($id); // se busca la pelicula
+        if ($ejemplar->delete()) {  // se elimina
+            $ejemplar = \Response::json(['delete' => true, 'id' => $id], 200);
         } else {
-           $pelicula = \Response::json(['error' => 'No se ha podido eliminar la pelicula'], 403);
+           $ejemplar = \Response::json(['error' => 'No se ha podido eliminar el prestamo del ejemplar'], 403);
         }
-        return $pelicula;
+        return $ejemplar;
     }
 }
